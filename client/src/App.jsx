@@ -5,16 +5,16 @@ function App() {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
 
-  // Fetch users
-  const loadUsers = () => {
-    fetch("http://localhost:5000/users")
-      .then(res => res.json())
-      .then(data => setUsers(data));
-  };
+// Fetch users
+const loadUsers = () => {
+  fetch(`${import.meta.env.VITE_API_URL}/users`)
+    .then(res => res.json())
+    .then(data => setUsers(data));
+};
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+useEffect(() => {
+  loadUsers();
+}, []);
 
   // Add user
   const handleSubmit = (e) => {
