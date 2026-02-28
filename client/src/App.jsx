@@ -1,59 +1,44 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-function App() {
-  const [users, setUsers] = useState([]);
+export default function Home() {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
+  const [users, setUsers] = useState([]);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const addUser = () => {
+    if (!name || !age) return;
 
-  const loadUsers = async () => {
-    try {
-      const res = await fetch(`${API_URL}/users`);
-      const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      await fetch(`${API_URL}/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, age })
-      });
-
-      setName("");
-      setAge("");
-      loadUsers();
-    } catch (err) {
-      console.error(err);
-    }
+    setUsers([...users, { name, age }]);
+    setName("");
+    setAge("");
   };
 
   return (
-    <div style={backgroundStyle}>
-      <div style={containerStyle}>
-        <h1 style={titleStyle}>DevConnect Users 🚀</h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-slate-900 to-black flex items-center justify-center p-6">
 
-        <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+      {/* Main Card */}
+      <div className="w-full max-w-md backdrop-blur-lg bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-8 text-white">
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">🚀</div>
+          <h1 className="text-3xl font-bold tracking-wide">
+            DevConnect
+          </h1>
+          <p className="text-sm text-gray-300 mt-1">
+            Professional User Manager
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="space-y-4">
+
           <input
             type="text"
             placeholder="Enter name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
-            style={inputStyle}
+            className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
           />
 
           <input
@@ -61,75 +46,41 @@ function App() {
             placeholder="Enter age"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            required
-            style={inputStyle}
+            className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
           />
 
-          <button style={buttonStyle}>Add User</button>
-        </form>
+          <button
+            onClick={addUser}
+            className="w-full py-3 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-500 transition duration-300 shadow-lg hover:shadow-indigo-500/40"
+          >
+            Add User
+          </button>
+        </div>
 
-        {users.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No users found</p>
-        ) : (
-          users.map((user) => (
-            <div key={user._id} style={cardStyle}>
+        {/* Users List */}
+        <div className="mt-8 space-y-4">
+          {users.map((user, index) => (
+            <div
+              key={index}
+              className="bg-white/20 border border-white/20 rounded-xl p-4 flex justify-between items-center hover:bg-white/30 transition duration-300"
+            >
               <div>
-                <strong>{user.name}</strong>
-                <p style={{ margin: 0 }}>Age: {user.age}</p>
+                <h2 className="font-semibold text-lg">
+                  {user.name}
+                </h2>
+                <p className="text-sm text-gray-300">
+                  Age: {user.age}
+                </p>
               </div>
+
+              <button className="text-red-400 hover:text-red-300 text-sm">
+                Delete
+              </button>
             </div>
-          ))
-        )}
+          ))}
+        </div>
+
       </div>
     </div>
   );
 }
-
-const backgroundStyle = {
-  minHeight: "100vh",
-  background: "linear-gradient(to right, #141e30, #243b55)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center"
-};
-
-const containerStyle = {
-  background: "white",
-  padding: "30px",
-  borderRadius: "15px",
-  width: "400px",
-  boxShadow: "0 15px 30px rgba(0,0,0,0.2)"
-};
-
-const titleStyle = {
-  textAlign: "center",
-  marginBottom: "20px"
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px",
-  border: "1px solid #ccc"
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "10px",
-  borderRadius: "8px",
-  border: "none",
-  backgroundColor: "#243b55",
-  color: "white",
-  fontWeight: "bold",
-  cursor: "pointer"
-};
-
-const cardStyle = {
-  background: "#f1f5f9",
-  padding: "12px",
-  borderRadius: "8px",
-  marginBottom: "10px"
-};
-
-export default App;
