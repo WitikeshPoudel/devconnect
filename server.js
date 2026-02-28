@@ -5,21 +5,25 @@ require("dotenv").config();
 
 const app = express();
 
-// Middleware
+// ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
 
-// =========================
-// MongoDB Connection
-// =========================
+// ================= ROOT ROUTE =================
+app.get("/", (req, res) => {
+  res.status(200).send("DevConnect API is running 🚀");
+});
+
+// ================= MONGODB CONNECTION =================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.log("❌ MongoDB Error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB Error:", err);
+    process.exit(1);
+  });
 
-// =========================
-// Schema & Model
-// =========================
+// ================= SCHEMA =================
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -32,46 +36,37 @@ const userSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", userSchema);
 
-// =========================
-// Root Route (IMPORTANT for Railway)
-// =========================
-app.get("/", (req, res) => {
-  res.send("DevConnect API is running 🚀");
-});
-
-// =========================
-// GET All Users
-// =========================
+// ================= GET USERS =================
 app.get("/users", async (req, res) => {
   try {
     const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch users" });
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching users" });
   }
 });
 
-// =========================
-// POST Create User
-// =========================
+// ================= CREATE USER =================
 app.post("/users", async (req, res) => {
   try {
     const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
 
     const newUser = new User({ name });
     await newUser.save();
 
     res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create user" });
+  } catch (err) {
+    res.status(500).json({ message: "Error creating user" });
   }
 });
 
-// =========================
-// Start Server (Railway Compatible)
-// =========================
-const PORT = process.env.PORT || 5000;
+// ================= START SERVER =================
+const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
