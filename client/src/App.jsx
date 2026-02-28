@@ -3,35 +3,38 @@ import { useEffect, useState } from "react";
 function App() {
   const [users, setUsers] = useState([]);
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
 
-// Fetch users
-const loadUsers = () => {
-  fetch(`${import.meta.env.VITE_API_URL}/users`)
-    .then(res => res.json())
-    .then(data => setUsers(data));
-};
+  const API_URL = import.meta.env.VITE_API_URL;
 
-useEffect(() => {
-  loadUsers();
-}, []);
+  // ================= LOAD USERS =================
+  const loadUsers = () => {
+    fetch(`${API_URL}/users`)
+      .then((res) => res.json())
+      .then((data) => setUsers(data))
+      .catch((err) => console.error("Error fetching users:", err));
+  };
 
-  // Add user
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // ================= ADD USER =================
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:5000/data", {
+    fetch(`${API_URL}/users`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, age })
+      body: JSON.stringify({ name }),
     })
+      .then((res) => res.json())
       .then(() => {
         setName("");
-        setAge("");
         loadUsers();
-      });
+      })
+      .catch((err) => console.error("Error creating user:", err));
   };
 
   return (
@@ -46,13 +49,6 @@ useEffect(() => {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <input
-          type="number"
-          placeholder="Enter age"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          required
-        />
         <button type="submit">Add User</button>
       </form>
 
@@ -61,9 +57,9 @@ useEffect(() => {
       {users.length === 0 ? (
         <p>No users found</p>
       ) : (
-        users.map(user => (
-          <div key={user.id}>
-            {user.name} - Age: {user.age}
+        users.map((user) => (
+          <div key={user._id}>
+            {user.name}
           </div>
         ))
       )}
